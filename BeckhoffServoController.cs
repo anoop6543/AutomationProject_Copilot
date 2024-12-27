@@ -1,7 +1,10 @@
-﻿namespace MachineAutomation
+﻿using NLog;
+
+namespace TestProjectAnoop
 {
 	public class BeckhoffServoController : BaseServoController
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 		private readonly IServoCommunication _communication;
 
 		public BeckhoffServoController(IServoCommunication communication)
@@ -11,49 +14,78 @@
 
 		public override void MoveServo(int servoId, int position)
 		{
-			string command = $"MOVE_SERVO:{servoId}:{position}";
-			_communication.SendCommand(command);
-			Log($"Moving servo {servoId} to position {position}");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated moving servo {servoId} to position {position}");
+			}
+			else
+			{
+				_communication.SendCommand($"MOVE_SERVO:{servoId}:{position}");
+			}
 		}
 
 		public override void StartServo(int servoId)
 		{
-			string command = $"START_SERVO:{servoId}";
-			_communication.SendCommand(command);
-			Log($"Starting servo {servoId}");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated starting servo {servoId}");
+			}
+			else
+			{
+				_communication.SendCommand($"START_SERVO:{servoId}");
+			}
 		}
 
 		public override void StopServo(int servoId)
 		{
-			string command = $"STOP_SERVO:{servoId}";
-			_communication.SendCommand(command);
-			Log($"Stopping servo {servoId}");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated stopping servo {servoId}");
+			}
+			else
+			{
+				_communication.SendCommand($"STOP_SERVO:{servoId}");
+			}
 		}
 
 		public override int GetServoPosition(int servoId)
 		{
-			string command = $"GET_POSITION:{servoId}";
-			_communication.SendCommand(command);
-			string response = _communication.ReadResponse();
-			int position = int.Parse(response);
-			Log($"Current position of servo {servoId} is {position}");
-			return position;
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated getting position of servo {servoId}");
+				return 90; // Simulated position
+			}
+			else
+			{
+				_communication.SendCommand($"GET_POSITION:{servoId}");
+				return int.Parse(_communication.ReadResponse());
+			}
 		}
 
 		public override string GetServoStatus(int servoId)
 		{
-			string command = $"GET_STATUS:{servoId}";
-			_communication.SendCommand(command);
-			string status = _communication.ReadResponse();
-			Log($"Current status of servo {servoId} is {status}");
-			return status;
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated getting status of servo {servoId}");
+				return "Simulated status";
+			}
+			else
+			{
+				_communication.SendCommand($"GET_STATUS:{servoId}");
+				return _communication.ReadResponse();
+			}
 		}
 
 		public override void ResetServoAlarm(int servoId)
 		{
-			string command = $"RESET_ALARM:{servoId}";
-			_communication.SendCommand(command);
-			Log($"Resetting alarm for servo {servoId}");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated resetting alarm for servo {servoId}");
+			}
+			else
+			{
+				_communication.SendCommand($"RESET_ALARM:{servoId}");
+			}
 		}
 	}
 }

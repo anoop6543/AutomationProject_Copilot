@@ -1,7 +1,11 @@
-﻿namespace MachineAutomation
+﻿using NLog;
+
+namespace TestProjectAnoop
 {
 	public abstract class BaseServoController
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
 		public abstract void MoveServo(int servoId, int position);
 		public abstract void StartServo(int servoId);
 		public abstract void StopServo(int servoId);
@@ -11,7 +15,7 @@
 
 		protected void Log(string message)
 		{
-			Console.WriteLine(message);
+			Logger.Info(message);
 		}
 	}
 }

@@ -1,7 +1,10 @@
-﻿namespace MachineAutomation
+﻿using NLog;
+
+namespace TestProjectAnoop
 {
 	public class KeyenceLaserMarkerController : BaseLaserMarkerController
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 		private readonly IServoCommunication _communication;
 
 		public KeyenceLaserMarkerController(IServoCommunication communication)
@@ -11,39 +14,64 @@
 
 		public override void StartMarking()
 		{
-			string command = "START_MARKING";
-			_communication.SendCommand(command);
-			Log("Starting laser marking");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info("Simulated starting laser marking");
+			}
+			else
+			{
+				_communication.SendCommand("START_MARKING");
+			}
 		}
 
 		public override void StopMarking()
 		{
-			string command = "STOP_MARKING";
-			_communication.SendCommand(command);
-			Log("Stopping laser marking");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info("Simulated stopping laser marking");
+			}
+			else
+			{
+				_communication.SendCommand("STOP_MARKING");
+			}
 		}
 
 		public override void SetMarkingParameters(string parameters)
 		{
-			string command = $"SET_PARAMETERS:{parameters}";
-			_communication.SendCommand(command);
-			Log($"Setting marking parameters: {parameters}");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated setting marking parameters: {parameters}");
+			}
+			else
+			{
+				_communication.SendCommand($"SET_PARAMETERS:{parameters}");
+			}
 		}
 
 		public override string GetMarkingStatus()
 		{
-			string command = "GET_STATUS";
-			_communication.SendCommand(command);
-			string status = _communication.ReadResponse();
-			Log($"Current marking status: {status}");
-			return status;
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info("Simulated getting marking status");
+				return "Simulated status";
+			}
+			else
+			{
+				_communication.SendCommand("GET_STATUS");
+				return _communication.ReadResponse();
+			}
 		}
 
 		public override void ResetMarkerAlarm()
 		{
-			string command = "RESET_ALARM";
-			_communication.SendCommand(command);
-			Log("Resetting laser marker alarm");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info("Simulated resetting laser marker alarm");
+			}
+			else
+			{
+				_communication.SendCommand("RESET_ALARM");
+			}
 		}
 	}
 }

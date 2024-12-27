@@ -1,4 +1,6 @@
-﻿namespace MachineAutomation
+﻿using System;
+
+namespace TestProjectAnoop
 {
 	public struct Results
 	{

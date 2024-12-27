@@ -1,11 +1,16 @@
-﻿namespace MachineAutomation
+﻿using NLog;
+
+namespace TestProjectAnoop
 {
 	public class ServoController
 	{
+
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
 		public void MoveServo(int servoId, int position)
 		{
 			// Implement servo control logic
-			Console.WriteLine($"Moving servo {servoId} to position {position}");
+			Logger.Info($"Moving servo {servoId} to position {position}");
 		}
 	}
 }

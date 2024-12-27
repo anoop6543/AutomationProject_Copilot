@@ -1,33 +1,53 @@
-﻿using System.IO.Ports;
+﻿using NLog;
+using System.IO.Ports;
 
 
-namespace MachineAutomation
+namespace TestProjectAnoop
 {
 	public class SerialCommunication : IServoCommunication
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 		private readonly SerialPort _serialPort;
 
 		public SerialCommunication(string portName)
 		{
-			_serialPort = new SerialPort(portName)
+			if (!Configuration.SimulationMode)
 			{
-				BaudRate = 9600,
-				Parity = Parity.None,
-				StopBits = StopBits.One,
-				DataBits = 8,
-				Handshake = Handshake.None
-			};
-			_serialPort.Open();
+				_serialPort = new SerialPort(portName)
+				{
+					BaudRate = 9600,
+					Parity = Parity.None,
+					StopBits = StopBits.One,
+					DataBits = 8,
+					Handshake = Handshake.None
+				};
+				_serialPort.Open();
+			}
 		}
 
 		public void SendCommand(string command)
 		{
-			_serialPort.WriteLine(command);
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated sending command: {command}");
+			}
+			else
+			{
+				_serialPort.WriteLine(command);
+			}
 		}
 
 		public string ReadResponse()
 		{
-			return _serialPort.ReadLine();
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info("Simulated reading response");
+				return "Simulated response";
+			}
+			else
+			{
+				return _serialPort.ReadLine();
+			}
 		}
 	}
 }

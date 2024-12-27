@@ -1,11 +1,22 @@
-﻿namespace MachineAutomation
+﻿using NLog;
+
+namespace TestProjectAnoop
 {
 	public class OutputController
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
 		public void SetOutput(int outputId, bool state)
 		{
-			// Implement digital output control logic
-			Console.WriteLine($"Setting output {outputId} to state {state}");
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated setting output {outputId} to state {state}");
+			}
+			else
+			{
+				// Implement digital output control logic
+				Logger.Info($"Setting output {outputId} to state {state}");
+			}
 		}
 	}
 }

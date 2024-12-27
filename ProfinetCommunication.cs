@@ -1,4 +1,4 @@
-﻿namespace MachineAutomation
+﻿namespace TestProjectAnoop
 {
 	public class ProfinetCommunication : IServoCommunication
 	{

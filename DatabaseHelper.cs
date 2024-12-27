@@ -1,10 +1,13 @@
 ﻿using Microsoft.Data.SqlClient;
+using NLog;
+using System.Collections.Generic;
 
 
-namespace MachineAutomation
+namespace TestProjectAnoop
 {
 	public class DatabaseHelper
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 		private readonly string _connectionString;
 
 		public DatabaseHelper(string connectionString)
@@ -14,58 +17,91 @@ namespace MachineAutomation
 
 		public List<ParameterRecipe> GetParameterRecipes()
 		{
-			var recipes = new List<ParameterRecipe>();
-			using var connection = new SqlConnection(_connectionString);
-			connection.Open();
-			using var command = new SqlCommand("SELECT * FROM ParameterRecipe", connection);
-			using var reader = command.ExecuteReader();
-			while (reader.Read())
+			if (Configuration.SimulationMode)
 			{
-				var recipe = new ParameterRecipe
-				{
-					RecipeId = reader.GetInt32(0),
-					RecipeName = reader.GetString(1),
-					ServoPosition = reader.GetDouble(2),
-					VfdSpeed = reader.GetInt32(3),
-					MarkingParameters = reader.GetString(4)
-				};
-				recipes.Add(recipe);
+				Logger.Info("Simulated fetching parameter recipes");
+				return new List<ParameterRecipe>
+					{
+						new ParameterRecipe { RecipeId = 1, RecipeName = "Recipe1", ServoPosition = 90.0, VfdSpeed = 1000, MarkingParameters = "PARAM1=VALUE1;PARAM2=VALUE2" },
+						new ParameterRecipe { RecipeId = 2, RecipeName = "Recipe2", ServoPosition = 45.0, VfdSpeed = 500, MarkingParameters = "PARAM1=VALUE3;PARAM2=VALUE4" }
+					};
 			}
-			return recipes;
+			else
+			{
+				var recipes = new List<ParameterRecipe>();
+				using var connection = new SqlConnection(_connectionString);
+				connection.Open();
+				using var command = new SqlCommand("SELECT * FROM ParameterRecipe", connection);
+				using var reader = command.ExecuteReader();
+				while (reader.Read())
+				{
+					var recipe = new ParameterRecipe
+					{
+						RecipeId = reader.GetInt32(0),
+						RecipeName = reader.GetString(1),
+						ServoPosition = reader.GetDouble(2),
+						VfdSpeed = reader.GetInt32(3),
+						MarkingParameters = reader.GetString(4)
+					};
+					recipes.Add(recipe);
+				}
+				return recipes;
+			}
 		}
 
 		public void InsertResult(Results result)
 		{
-			using var connection = new SqlConnection(_connectionString);
-			connection.Open();
-			using var command = new SqlCommand("INSERT INTO Results (RecipeId, Timestamp, Success, Details) VALUES (@RecipeId, @Timestamp, @Success, @Details)", connection);
-			command.Parameters.AddWithValue("@RecipeId", result.RecipeId);
-			command.Parameters.AddWithValue("@Timestamp", result.Timestamp);
-			command.Parameters.AddWithValue("@Success", result.Success);
-			command.Parameters.AddWithValue("@Details", result.Details);
-			command.ExecuteNonQuery();
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated inserting result: {result.Details}");
+			}
+			else
+			{
+				using var connection = new SqlConnection(_connectionString);
+				connection.Open();
+				using var command = new SqlCommand("INSERT INTO Results (RecipeId, Timestamp, Success, Details) VALUES (@RecipeId, @Timestamp, @Success, @Details)", connection);
+				command.Parameters.AddWithValue("@RecipeId", result.RecipeId);
+				command.Parameters.AddWithValue("@Timestamp", result.Timestamp);
+				command.Parameters.AddWithValue("@Success", result.Success);
+				command.Parameters.AddWithValue("@Details", result.Details);
+				command.ExecuteNonQuery();
+			}
 		}
 
 		public void LogAlarm(AlarmLog alarm)
 		{
-			using var connection = new SqlConnection(_connectionString);
-			connection.Open();
-			using var command = new SqlCommand("INSERT INTO AlarmLog (Timestamp, AlarmMessage, Severity) VALUES (@Timestamp, @AlarmMessage, @Severity)", connection);
-			command.Parameters.AddWithValue("@Timestamp", alarm.Timestamp);
-			command.Parameters.AddWithValue("@AlarmMessage", alarm.AlarmMessage);
-			command.Parameters.AddWithValue("@Severity", alarm.Severity);
-			command.ExecuteNonQuery();
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated logging alarm: {alarm.AlarmMessage}");
+			}
+			else
+			{
+				using var connection = new SqlConnection(_connectionString);
+				connection.Open();
+				using var command = new SqlCommand("INSERT INTO AlarmLog (Timestamp, AlarmMessage, Severity) VALUES (@Timestamp, @AlarmMessage, @Severity)", connection);
+				command.Parameters.AddWithValue("@Timestamp", alarm.Timestamp);
+				command.Parameters.AddWithValue("@AlarmMessage", alarm.AlarmMessage);
+				command.Parameters.AddWithValue("@Severity", alarm.Severity);
+				command.ExecuteNonQuery();
+			}
 		}
 
 		public void LogError(ErrorLog error)
 		{
-			using var connection = new SqlConnection(_connectionString);
-			connection.Open();
-			using var command = new SqlCommand("INSERT INTO ErrorLog (Timestamp, ErrorMessage, StackTrace) VALUES (@Timestamp, @ErrorMessage, @StackTrace)", connection);
-			command.Parameters.AddWithValue("@Timestamp", error.Timestamp);
-			command.Parameters.AddWithValue("@ErrorMessage", error.ErrorMessage);
-			command.Parameters.AddWithValue("@StackTrace", error.StackTrace);
-			command.ExecuteNonQuery();
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated logging error: {error.ErrorMessage}");
+			}
+			else
+			{
+				using var connection = new SqlConnection(_connectionString);
+				connection.Open();
+				using var command = new SqlCommand("INSERT INTO ErrorLog (Timestamp, ErrorMessage, StackTrace) VALUES (@Timestamp, @ErrorMessage, @StackTrace)", connection);
+				command.Parameters.AddWithValue("@Timestamp", error.Timestamp);
+				command.Parameters.AddWithValue("@ErrorMessage", error.ErrorMessage);
+				command.Parameters.AddWithValue("@StackTrace", error.StackTrace);
+				command.ExecuteNonQuery();
+			}
 		}
 	}
 }

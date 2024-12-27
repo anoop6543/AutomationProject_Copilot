@@ -1,7 +1,11 @@
-﻿namespace MachineAutomation
+﻿using NLog;
+
+namespace TestProjectAnoop
 {
 	public abstract class BaseLaserMarkerController
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
 		public abstract void StartMarking();
 		public abstract void StopMarking();
 		public abstract void SetMarkingParameters(string parameters);
@@ -10,7 +14,7 @@
 
 		protected void Log(string message)
 		{
-			Console.WriteLine(message);
+			Logger.Info(message);
 		}
 	}
 }

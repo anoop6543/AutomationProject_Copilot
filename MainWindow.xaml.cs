@@ -1,19 +1,39 @@
-﻿using System;
+﻿using MachineAutomation;
+using NLog;
+using System;
 using System.Collections.Generic;
-using System.Device.Gpio;
+using System.Windows;
 
-
-namespace MachineAutomation
+namespace TestProjectAnoop
 {
-	class Program
+	/// <summary>
+	/// Interaction logic for MainWindow.xaml
+	/// </summary>
+	public partial class MainWindow : Window
 	{
-		static void Main(string[] args)
-		{
-			Console.WriteLine("Machine Automation Project");
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+		private DatabaseHelper dbHelper;
+		private BeckhoffServoController servoController;
+		private VfdController vfdController;
+		private SensorController sensorController;
+		private OutputController outputController;
+		private SerialDevice serialDevice1;
+		private SerialDevice serialDevice2;
+		private KeyenceLaserMarkerController laserMarkerController;
+		private TurckIOController ioController;
 
+		public MainWindow()
+		{
+			InitializeComponent();
+			InitializeComponents();
+			LoadMachineData();
+		}
+
+		private void InitializeComponents()
+		{
 			// Database connection string
 			string connectionString = "your_connection_string_here";
-			var dbHelper = new DatabaseHelper(connectionString);
+			dbHelper = new DatabaseHelper(connectionString);
 
 			// Select communication strategy
 			IServoCommunication servoCommunication = new SerialCommunication("COM3");
@@ -21,20 +41,23 @@ namespace MachineAutomation
 			// IServoCommunication servoCommunication = new EthercatCommunication();
 
 			// Initialize components
-			var servoController = new BeckhoffServoController(servoCommunication);
-			var vfdController = new VfdController("COM4");
-			var sensorController = new SensorController();
-			var outputController = new OutputController();
-			var serialDevice1 = new SerialDevice("COM1");
-			var serialDevice2 = new SerialDevice("COM2");
+			servoController = new BeckhoffServoController(servoCommunication);
+			vfdController = new VfdController("COM4");
+			sensorController = new SensorController();
+			outputController = new OutputController();
+			serialDevice1 = new SerialDevice("COM1");
+			serialDevice2 = new SerialDevice("COM2");
 
 			// Initialize laser marker
 			var laserMarkerCommunication = new SerialCommunication("COM5");
-			var laserMarkerController = new KeyenceLaserMarkerController(laserMarkerCommunication);
+			laserMarkerController = new KeyenceLaserMarkerController(laserMarkerCommunication);
 
 			// Initialize IO controller
-			var ioController = new TurckIOController("192.168.1.100", 502);
+			ioController = new TurckIOController("192.168.1.100", 502);
+		}
 
+		private void LoadMachineData()
+		{
 			// Example usage
 			servoController.MoveServo(1, 90);
 			vfdController.SetSpeed(1000);
@@ -56,11 +79,18 @@ namespace MachineAutomation
 			double analogInputValue = ioController.ReadAnalogInput(1);
 			ioController.WriteAnalogOutput(1, 5.0);
 
+			// Update UI with machine data
+			ServoPositionText.Text = $"Servo Position: 90";
+			VfdSpeedText.Text = $"VFD Speed: 1000";
+			SensorStateText.Text = $"Sensor State: {sensorState}";
+			DigitalOutputText.Text = $"Digital Output: True";
+			AnalogInputText.Text = $"Analog Input: 5.0";
+
 			// Database operations
 			List<ParameterRecipe> recipes = dbHelper.GetParameterRecipes();
 			foreach (var recipe in recipes)
 			{
-				Console.WriteLine($"Recipe: {recipe.RecipeName}, Servo Position: {recipe.ServoPosition}, VFD Speed: {recipe.VfdSpeed}");
+				Logger.Info($"Recipe: {recipe.RecipeName}, Servo Position: {recipe.ServoPosition}, VFD Speed: {recipe.VfdSpeed}");
 			}
 
 			var result = new Results
@@ -87,6 +117,11 @@ namespace MachineAutomation
 				StackTrace = "Stack trace details here."
 			};
 			dbHelper.LogError(error);
+
+			// Update UI with diagnostics data
+			LastErrorText.Text = $"Last Error: Null reference exception.";
+			ErrorTimestampText.Text = $"Error Timestamp: {DateTime.Now}";
+			ErrorDetailsText.Text = $"Error Details: Stack trace details here.";
 		}
 	}
 }

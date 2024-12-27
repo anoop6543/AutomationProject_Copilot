@@ -1,7 +1,11 @@
-﻿namespace MachineAutomation
+﻿using NLog;
+
+namespace TestProjectAnoop
 {
 	public abstract class BaseIOController
 	{
+		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
 		public abstract bool ReadDigitalInput(int inputId);
 		public abstract void WriteDigitalOutput(int outputId, bool state);
 		public abstract double ReadAnalogInput(int inputId);
@@ -9,7 +13,7 @@
 
 		protected void Log(string message)
 		{
-			Console.WriteLine(message);
+			Logger.Info(message);
 		}
 	}
 }
