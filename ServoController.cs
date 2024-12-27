@@ -1,6 +1,6 @@
 ﻿using NLog;
 
-namespace TestProjectAnoop
+namespace IndustrialAutomationSuite
 {
 	public class ServoController
 	{

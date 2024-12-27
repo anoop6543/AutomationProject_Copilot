@@ -2,7 +2,7 @@
 using System.IO.Ports;
 
 
-namespace TestProjectAnoop
+namespace IndustrialAutomationSuite
 {
 	public class VfdController
 	{

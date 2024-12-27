@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace TestProjectAnoop
+namespace IndustrialAutomationSuite
 {
 	public partial class App : Application
 	{

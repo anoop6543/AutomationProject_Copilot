@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TestProjectAnoop
+namespace IndustrialAutomationSuite
 {
 	public struct ErrorLog
 	{

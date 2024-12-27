@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 
 
-namespace TestProjectAnoop
+namespace IndustrialAutomationSuite
 {
 	public class TurckIOController : BaseIOController
 	{

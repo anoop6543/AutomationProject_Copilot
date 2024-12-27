@@ -3,9 +3,9 @@ using NLog;
 using System.Collections.Generic;
 
 
-namespace TestProjectAnoop
+namespace IndustrialAutomationSuite
 {
-	public class DatabaseHelper
+	public partial class DatabaseHelper
 	{
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 		private readonly string _connectionString;
@@ -100,6 +100,26 @@ namespace TestProjectAnoop
 				command.Parameters.AddWithValue("@Timestamp", error.Timestamp);
 				command.Parameters.AddWithValue("@ErrorMessage", error.ErrorMessage);
 				command.Parameters.AddWithValue("@StackTrace", error.StackTrace);
+				command.ExecuteNonQuery();
+			}
+		}
+
+		public void LogScadaData(ScadaData data)
+		{
+			if (Configuration.SimulationMode)
+			{
+				Logger.Info($"Simulated logging SCADA data: {data}");
+			}
+			else
+			{
+				using var connection = new SqlConnection(_connectionString);
+				connection.Open();
+				using var command = new SqlCommand("INSERT INTO ScadaData (Timestamp, SensorState, AnalogInputValue, VfdSpeed, ServoPosition) VALUES (@Timestamp, @SensorState, @AnalogInputValue, @VfdSpeed, @ServoPosition)", connection);
+				command.Parameters.AddWithValue("@Timestamp", data.Timestamp);
+				command.Parameters.AddWithValue("@SensorState", data.SensorState);
+				command.Parameters.AddWithValue("@AnalogInputValue", data.AnalogInputValue);
+				command.Parameters.AddWithValue("@VfdSpeed", data.VfdSpeed);
+				command.Parameters.AddWithValue("@ServoPosition", data.ServoPosition);
 				command.ExecuteNonQuery();
 			}
 		}

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjectAnoop", "TestProjectAnoop.csproj", "{8A039BF4-CC6A-4CA2-9D8E-A871C3D77844}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialAutomationSuite", "IndustrialAutomationSuite.csproj", "{8A039BF4-CC6A-4CA2-9D8E-A871C3D77844}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

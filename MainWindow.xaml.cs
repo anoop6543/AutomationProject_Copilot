@@ -1,10 +1,10 @@
-﻿using MachineAutomation;
+﻿using IndustrialAutomationSuite;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 
-namespace TestProjectAnoop
+namespace IndustrialAutomationSuite
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
@@ -21,12 +21,14 @@ namespace TestProjectAnoop
 		private SerialDevice serialDevice2;
 		private KeyenceLaserMarkerController laserMarkerController;
 		private TurckIOController ioController;
+		private DataAcquisitionService dataAcquisitionService;
 
 		public MainWindow()
 		{
 			InitializeComponent();
 			InitializeComponents();
 			LoadMachineData();
+			StartDataAcquisition();
 		}
 
 		private void InitializeComponents()
@@ -54,6 +56,9 @@ namespace TestProjectAnoop
 
 			// Initialize IO controller
 			ioController = new TurckIOController("192.168.1.100", 502);
+
+			// Initialize data acquisition service
+			dataAcquisitionService = new DataAcquisitionService(sensorController, ioController, vfdController, servoController, dbHelper);
 		}
 
 		private void LoadMachineData()
@@ -122,6 +127,16 @@ namespace TestProjectAnoop
 			LastErrorText.Text = $"Last Error: Null reference exception.";
 			ErrorTimestampText.Text = $"Error Timestamp: {DateTime.Now}";
 			ErrorDetailsText.Text = $"Error Details: Stack trace details here.";
+		}
+
+		private void StartDataAcquisition()
+		{
+			dataAcquisitionService.Start();
+		}
+
+		private void StopDataAcquisition()
+		{
+			dataAcquisitionService.Stop();
 		}
 	}
 }
