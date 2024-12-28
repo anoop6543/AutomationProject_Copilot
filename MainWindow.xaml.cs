@@ -22,6 +22,8 @@ namespace IndustrialAutomationSuite
 		private KeyenceLaserMarkerController laserMarkerController;
 		private TurckIOController ioController;
 		private DataAcquisitionService dataAcquisitionService;
+		private EmergencyStopController emergencyStopController;
+		private SafetyInterlockController safetyInterlockController;
 
 		public MainWindow()
 		{
@@ -34,28 +36,52 @@ namespace IndustrialAutomationSuite
 		private void InitializeComponents()
 		{
 			// Database connection string
-			string connectionString = "your_connection_string_here";
+			string connectionString = Configuration.DefaultConnectionString;
 			dbHelper = new DatabaseHelper(connectionString);
 
 			// Select communication strategy
-			IServoCommunication servoCommunication = new SerialCommunication("COM3");
-			// IServoCommunication servoCommunication = new ProfinetCommunication();
-			// IServoCommunication servoCommunication = new EthercatCommunication();
+			IServoCommunication servoCommunication;
+			if (Configuration.UseMockHardware)
+			{
+				servoCommunication = new MockServoCommunication();
+			}
+			else
+			{
+				servoCommunication = new SerialCommunication(Configuration.ServoCommunicationPort);
+				// IServoCommunication servoCommunication = new ProfinetCommunication();
+				// IServoCommunication servoCommunication = new EthercatCommunication();
+			}
 
 			// Initialize components
-			servoController = new BeckhoffServoController(servoCommunication);
-			vfdController = new VfdController("COM4");
-			sensorController = new SensorController();
-			outputController = new OutputController();
-			serialDevice1 = new SerialDevice("COM1");
-			serialDevice2 = new SerialDevice("COM2");
+			if (Configuration.UseMockHardware)
+			{
+				servoController = new BeckhoffServoController(servoCommunication);
+				vfdController = new MockVfdController();
+				sensorController = new MockSensorController();
+				outputController = new OutputController();
+				serialDevice1 = new SerialDevice(Configuration.SerialDevice1Port);
+				serialDevice2 = new SerialDevice(Configuration.SerialDevice2Port);
+				laserMarkerController = new MockKeyenceLaserMarkerController();
+				ioController = new MockTurckIOController();
+				emergencyStopController = new MockEmergencyStopController();
+				safetyInterlockController = new MockSafetyInterlockController();
+			}
+			else
+			{
+				servoController = new BeckhoffServoController(servoCommunication);
+				vfdController = new VfdController(Configuration.VfdCommunicationPort);
+				sensorController = new SensorController();
+				outputController = new OutputController();
+				serialDevice1 = new SerialDevice(Configuration.SerialDevice1Port);
+				serialDevice2 = new SerialDevice(Configuration.SerialDevice2Port);
+				laserMarkerController = new KeyenceLaserMarkerController(new SerialCommunication(Configuration.LaserMarkerCommunicationPort));
+				ioController = new TurckIOController("192.168.1.100", 502);
+				emergencyStopController = new EmergencyStopController(ioController, new EthercatCommunication());
+				safetyInterlockController = new SafetyInterlockController(ioController, new EthercatCommunication());
+			}
 
-			// Initialize laser marker
-			var laserMarkerCommunication = new SerialCommunication("COM5");
-			laserMarkerController = new KeyenceLaserMarkerController(laserMarkerCommunication);
-
-			// Initialize IO controller
-			ioController = new TurckIOController("192.168.1.100", 502);
+			// Add default safety interlocks
+			safetyInterlockController.AddDefaultInterlocks();
 
 			// Initialize data acquisition service
 			dataAcquisitionService = new DataAcquisitionService(sensorController, ioController, vfdController, servoController, dbHelper);
@@ -63,6 +89,13 @@ namespace IndustrialAutomationSuite
 
 		private void LoadMachineData()
 		{
+			// Check safety interlocks
+			if (!safetyInterlockController.AreInterlocksSatisfied())
+			{
+				Logger.Warn("Safety interlocks not satisfied. Aborting operation.");
+				return;
+			}
+
 			// Example usage
 			servoController.MoveServo(1, 90);
 			vfdController.SetSpeed(1000);
@@ -137,6 +170,16 @@ namespace IndustrialAutomationSuite
 		private void StopDataAcquisition()
 		{
 			dataAcquisitionService.Stop();
+		}
+
+		private void EmergencyStopButton_Click(object sender, RoutedEventArgs e)
+		{
+			emergencyStopController.ActivateEmergencyStop();
+		}
+
+		private void ResetEmergencyStopButton_Click(object sender, RoutedEventArgs e)
+		{
+			emergencyStopController.ResetEmergencyStop();
 		}
 	}
 }
