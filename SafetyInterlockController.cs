@@ -1,8 +1,10 @@
 using NLog;
+using System;
+using System.Collections.Generic;
 
 namespace IndustrialAutomationSuite
 {
-	ic class SafetyInterlockController
+	public class SafetyInterlockController
 	{
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 		private readonly List<Func<bool>> _interlocks;
@@ -38,9 +40,9 @@ namespace IndustrialAutomationSuite
 		public void AddDefaultInterlocks()
 		{
 			// Add default interlocks
-			AddInterlock(CheckEmergencyStop);
-			AddInterlock(CheckSafetySwitch);
-			AddInterlock(CheckEthercatSafetyStatus);
+			AddInterlock(() => CheckEmergencyStop());
+			AddInterlock(() => CheckSafetySwitch());
+			AddInterlock(() => CheckEthercatSafetyStatus());
 		}
 
 		private bool CheckEmergencyStop()

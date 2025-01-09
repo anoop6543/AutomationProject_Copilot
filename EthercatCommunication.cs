@@ -1,4 +1,6 @@
-﻿namespace IndustrialAutomationSuite
+﻿using System;
+
+namespace IndustrialAutomationSuite
 {
 	public class EthercatCommunication : IServoCommunication
 	{
@@ -13,6 +15,11 @@
 		{
 			// Read response from EtherCAT
 			return string.Empty;
+		}
+
+		internal string ReadStatus(string v)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

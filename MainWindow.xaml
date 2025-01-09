@@ -1,34 +1,113 @@
 ﻿<Window x:Class="IndustrialAutomationSuite.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Main Screen" Height="450" Width="800">
+        Title="Main Screen" Height="600" Width="1000">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+    </Window.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="Main">
-                <StackPanel>
-                    <TextBlock Text="Machine Status" FontSize="20" Margin="10"/>
-                    <TextBlock x:Name="ServoPositionText" Text="Servo Position: 90" Margin="10"/>
-                    <TextBlock x:Name="VfdSpeedText" Text="VFD Speed: 1000" Margin="10"/>
-                    <TextBlock x:Name="SensorStateText" Text="Sensor State: True" Margin="10"/>
-                    <TextBlock x:Name="DigitalOutputText" Text="Digital Output: True" Margin="10"/>
-                    <TextBlock x:Name="AnalogInputText" Text="Analog Input: 5.0" Margin="10"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Machine Status" FontSize="20" Margin="10" Grid.Row="0"/>
+                    <GroupBox Header="Status Details" Grid.Row="1">
+                        <StackPanel>
+                            <TextBlock x:Name="ServoPositionText" Text="Servo Position: 90"/>
+                            <TextBlock x:Name="VfdSpeedText" Text="VFD Speed: 1000"/>
+                            <TextBlock x:Name="SensorStateText" Text="Sensor State: True"/>
+                            <TextBlock x:Name="DigitalOutputText" Text="Digital Output: True"/>
+                            <TextBlock x:Name="AnalogInputText" Text="Analog Input: 5.0"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2">
+                        <Button Content="Start Operation" Click="StartOperationButton_Click"/>
+                        <Button Content="Stop Operation" Click="StopOperationButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Settings">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Settings" FontSize="20" Margin="10" Grid.Row="0"/>
+                    <GroupBox Header="Hardware Parameters" Grid.Row="1">
+                        <StackPanel>
+                            <TextBlock Text="Servo Position"/>
+                            <Slider x:Name="ServoPositionSlider" Minimum="0" Maximum="180" Value="90" ValueChanged="ServoPositionSlider_ValueChanged"/>
+                            <TextBlock Text="VFD Speed"/>
+                            <Slider x:Name="VfdSpeedSlider" Minimum="0" Maximum="3000" Value="1000" ValueChanged="VfdSpeedSlider_ValueChanged"/>
+                            <TextBlock Text="Analog Input"/>
+                            <Slider x:Name="AnalogInputSlider" Minimum="0" Maximum="10" Value="5.0" ValueChanged="AnalogInputSlider_ValueChanged"/>
+                            <TextBlock Text="Select Mode"/>
+                            <ComboBox x:Name="ModeComboBox" SelectionChanged="ModeComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Automatic"/>
+                                <ComboBoxItem Content="Manual"/>
+                            </ComboBox>
+                            <TextBlock Text="Custom Parameter"/>
+                            <TextBox x:Name="CustomParameterTextBox" TextChanged="CustomParameterTextBox_TextChanged"/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
             </TabItem>
             <TabItem Header="Maintenance">
-                <StackPanel>
-                    <TextBlock Text="Maintenance Information" FontSize="20" Margin="10"/>
-                    <TextBlock Text="Last Maintenance Date: 2023-10-01" Margin="10"/>
-                    <TextBlock Text="Next Maintenance Date: 2023-12-01" Margin="10"/>
-                    <TextBlock Text="Maintenance Notes: All systems operational." Margin="10"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Maintenance Information" FontSize="20" Margin="10" Grid.Row="0"/>
+                    <GroupBox Header="Maintenance Details" Grid.Row="1">
+                        <StackPanel>
+                            <TextBlock Text="Last Maintenance Date: 2023-10-01"/>
+                            <TextBlock Text="Next Maintenance Date: 2023-12-01"/>
+                            <TextBlock Text="Maintenance Notes: All systems operational."/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
             </TabItem>
             <TabItem Header="Diagnostics">
-                <StackPanel>
-                    <TextBlock Text="Diagnostics Information" FontSize="20" Margin="10"/>
-                    <TextBlock x:Name="LastErrorText" Text="Last Error: Null reference exception." Margin="10"/>
-                    <TextBlock x:Name="ErrorTimestampText" Text="Error Timestamp: 2023-10-15 14:30:00" Margin="10"/>
-                    <TextBlock x:Name="ErrorDetailsText" Text="Error Details: Stack trace details here." Margin="10"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Diagnostics Information" FontSize="20" Margin="10" Grid.Row="0"/>
+                    <GroupBox Header="Error Details" Grid.Row="1">
+                        <StackPanel>
+                            <TextBlock x:Name="LastErrorText" Text="Last Error: Null reference exception."/>
+                            <TextBlock x:Name="ErrorTimestampText" Text="Error Timestamp: 2023-10-15 14:30:00"/>
+                            <TextBlock x:Name="ErrorDetailsText" Text="Error Details: Stack trace details here."/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>

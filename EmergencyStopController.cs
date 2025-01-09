@@ -2,7 +2,7 @@ using NLog;
 
 namespace IndustrialAutomationSuite
 {
-	ic class EmergencyStopController
+	public class EmergencyStopController
 	{
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 		private bool _isEmergencyStopActivated;

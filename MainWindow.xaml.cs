@@ -3,6 +3,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace IndustrialAutomationSuite
 {
@@ -24,6 +25,7 @@ namespace IndustrialAutomationSuite
 		private DataAcquisitionService dataAcquisitionService;
 		private EmergencyStopController emergencyStopController;
 		private SafetyInterlockController safetyInterlockController;
+		private GantrySystem gantrySystem;
 
 		public MainWindow()
 		{
@@ -31,6 +33,8 @@ namespace IndustrialAutomationSuite
 			InitializeComponents();
 			LoadMachineData();
 			StartDataAcquisition();
+			gantrySystem = new GantrySystem(servoController, sensorController, ioController);
+
 		}
 
 		private void InitializeComponents()
@@ -48,8 +52,6 @@ namespace IndustrialAutomationSuite
 			else
 			{
 				servoCommunication = new SerialCommunication(Configuration.ServoCommunicationPort);
-				// IServoCommunication servoCommunication = new ProfinetCommunication();
-				// IServoCommunication servoCommunication = new EthercatCommunication();
 			}
 
 			// Initialize components
@@ -172,14 +174,85 @@ namespace IndustrialAutomationSuite
 			dataAcquisitionService.Stop();
 		}
 
+		private void StartOperationButton_Click(object sender, RoutedEventArgs e)
+		{
+			// Start operation logic
+			Logger.Info("Starting operation...");
+			gantrySystem.PickAndPlace();
+			// Add your start operation logic here
+		}
+
+		private void StopOperationButton_Click(object sender, RoutedEventArgs e)
+		{
+			// Stop operation logic
+			Logger.Info("Stopping operation...");
+			// Add your stop operation logic here
+		}
+
+		private void ServoPositionSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			if (servoController != null)
+			{
+				int position = (int)e.NewValue;
+				servoController.MoveServo(1, position);
+				ServoPositionText.Text = $"Servo Position: {position}";
+			}
+		}
+
+		private void VfdSpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			if (vfdController != null)
+			{
+				int speed = (int)e.NewValue;
+				vfdController.SetSpeed(speed);
+				VfdSpeedText.Text = $"VFD Speed: {speed}";
+			}
+		}
+
+		private void AnalogInputSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			if (ioController != null)
+			{
+				double value = e.NewValue;
+				ioController.WriteAnalogOutput(1, value);
+				AnalogInputText.Text = $"Analog Input: {value}";
+			}
+		}
+
 		private void EmergencyStopButton_Click(object sender, RoutedEventArgs e)
 		{
+			// Emergency stop logic
+			Logger.Warn("Emergency stop activated!");
 			emergencyStopController.ActivateEmergencyStop();
 		}
 
 		private void ResetEmergencyStopButton_Click(object sender, RoutedEventArgs e)
 		{
+			// Reset emergency stop logic
+			Logger.Info("Resetting emergency stop.");
 			emergencyStopController.ResetEmergencyStop();
 		}
+
+		private void ModeComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		{
+			if (ModeComboBox.SelectedItem != null)
+			{
+				string selectedMode = (ModeComboBox.SelectedItem as ComboBoxItem).Content.ToString();
+				Logger.Info($"Mode changed to: {selectedMode}");
+				// Add your mode change logic here
+			}
+		}
+
+		private void CustomParameterTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+		{
+			string customParameter = CustomParameterTextBox.Text;
+			Logger.Info($"Custom parameter changed to: {customParameter}");
+			// Add your custom parameter change logic here
+		}
+
+		//private void StartOperationButton_Click(object sender, RoutedEventArgs e)
+		//{
+		//	gantrySystem.PickAndPlace();
+		//}
 	}
 }
