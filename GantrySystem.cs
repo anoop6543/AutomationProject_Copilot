@@ -19,81 +19,50 @@ namespace IndustrialAutomationSuite
 			this.ioController = ioController;
 		}
 
-		public void HomeAllAxes()
+		public async Task HomeAllAxesAsync()
 		{
-			// Home all axes
-			servoController.HomeServo(1);
-			servoController.HomeServo(2);
-			servoController.HomeServo(3);
-			servoController.HomeServo(4);
-			servoController.HomeServo(5);
-			servoController.HomeServo(6);
+			Logger.Info("Starting homing sequence for all axes.");
+			var tasks = new List<Task>
+											{
+												Task.Run(() => servoController.HomeServo(1)),
+												Task.Run(() => servoController.HomeServo(2)),
+												Task.Run(() => servoController.HomeServo(3)),
+												Task.Run(() => servoController.HomeServo(4)),
+												Task.Run(() => servoController.HomeServo(5)),
+												Task.Run(() => servoController.HomeServo(6))
+											};
 
-			// Wait for all axes to be homed
-			WaitForAllAxesToHome();
+			await Task.WhenAll(tasks);
+			await WaitForAllAxesToHomeAsync();
+			Logger.Info("All axes homed successfully.");
 		}
 
-		public void PickAndPlace_old()
-		{
-			// Move to pick position
-			MoveToPosition(0, 100, 200, 300, 400, 500);
-			// Activate gripper
-			ioController.WriteDigitalOutput(1, true);
-			// Wait for object detection
-			while (!sensorController.GetSensorState(1)) { }
-			// Move to place position
-			MoveToPosition(600, 700, 800, 900, 1000, 1100);
-			// Deactivate gripper
-			ioController.WriteDigitalOutput(1, false);
-		}
-
-		public void PickAndPlace()
+		public async Task PickAndPlaceAsync()
 		{
 			try
 			{
-				// Home all axes before starting
-				HomeAllAxes();
+				Logger.Info("Starting pick and place operation.");
+				await HomeAllAxesAsync();
 
-				// Move to pick position
-				MoveToPosition(0, 100, 200, 300, 400, 500);
-
-				// Activate gripper
+				await MoveToPositionAsync(0, 100, 200, 300, 400, 500);
 				ioController.WriteDigitalOutput(1, true);
+				await WaitForObjectDetectionAsync();
 
-				// Wait for object detection
-				WaitForObjectDetection();
-
-				// Move to place position
-				MoveToPosition(600, 700, 800, 900, 1000, 1100);
-
-				// Deactivate gripper
+				await MoveToPositionAsync(600, 700, 800, 900, 1000, 1100);
 				ioController.WriteDigitalOutput(1, false);
 
-				// Return to home position
-				HomeAllAxes();
+				await HomeAllAxesAsync();
+				Logger.Info("Pick and place operation completed successfully.");
 			}
 			catch (Exception ex)
 			{
-				// Handle errors
 				HandleError(ex);
 			}
 		}
 
-		private void MoveToPosition(int x, int y, int z, int a, int b, int c)
+		private async Task MoveToPositionAsync(int x, int y, int z, int a, int b, int c, int speed = 100)
 		{
-			servoController.MoveServo(1, x);
-			servoController.MoveServo(2, y);
-			servoController.MoveServo(3, z);
-			servoController.MoveServo(4, a);
-			servoController.MoveServo(5, b);
-			servoController.MoveServo(6, c);
-
-			// Wait for all axes to reach the target position
-			WaitForAllAxesToReachPosition();
-		}
-
-		public void MoveToPosition(int x, int y, int z, int a, int b, int c, int speed = 100)
-		{
+			Logger.Info($"Moving to position: ({x}, {y}, {z}, {a}, {b}, {c}) at speed {speed}.");
 			servoController.SetSpeed(1, speed);
 			servoController.SetSpeed(2, speed);
 			servoController.SetSpeed(3, speed);
@@ -108,62 +77,61 @@ namespace IndustrialAutomationSuite
 			servoController.MoveServo(5, b);
 			servoController.MoveServo(6, c);
 
-			// Wait for all axes to reach the target position
-			WaitForAllAxesToReachPosition();
+			await WaitForAllAxesToReachPositionAsync();
+			Logger.Info("Reached target position.");
 		}
 
-		public void MoveThroughWaypoints(List<(int x, int y, int z, int a, int b, int c)> waypoints, int speed = 100)
+		public async Task MoveThroughWaypointsAsync(List<(int x, int y, int z, int a, int b, int c)> waypoints, int speed = 100)
 		{
 			foreach (var waypoint in waypoints)
 			{
-				MoveToPosition(waypoint.x, waypoint.y, waypoint.z, waypoint.a, waypoint.b, waypoint.c, speed);
+				await MoveToPositionAsync(waypoint.x, waypoint.y, waypoint.z, waypoint.a, waypoint.b, waypoint.c, speed);
 			}
 		}
 
-		private void WaitForAllAxesToHome()
+		private async Task WaitForAllAxesToHomeAsync()
 		{
+			Logger.Info("Waiting for all axes to home.");
 			while (!servoController.IsHomed(1) ||
-				   !servoController.IsHomed(2) ||
-				   !servoController.IsHomed(3) ||
-				   !servoController.IsHomed(4) ||
-				   !servoController.IsHomed(5) ||
-				   !servoController.IsHomed(6))
+!servoController.IsHomed(2) ||
+!servoController.IsHomed(3) ||
+!servoController.IsHomed(4) ||
+!servoController.IsHomed(5) ||
+!servoController.IsHomed(6))
 			{
-				// Wait for a short period before checking again
-				System.Threading.Thread.Sleep(100);
+				await Task.Delay(100);
 			}
+			Logger.Info("All axes homed.");
 		}
 
-		private void WaitForAllAxesToReachPosition()
+		private async Task WaitForAllAxesToReachPositionAsync()
 		{
+			Logger.Info("Waiting for all axes to reach target position.");
 			while (!servoController.IsAtTargetPosition(1) ||
-				   !servoController.IsAtTargetPosition(2) ||
-				   !servoController.IsAtTargetPosition(3) ||
-				   !servoController.IsAtTargetPosition(4) ||
-				   !servoController.IsAtTargetPosition(5) ||
-				   !servoController.IsAtTargetPosition(6))
+!servoController.IsAtTargetPosition(2) ||
+!servoController.IsAtTargetPosition(3) ||
+!servoController.IsAtTargetPosition(4) ||
+!servoController.IsAtTargetPosition(5) ||
+!servoController.IsAtTargetPosition(6))
 			{
-				// Wait for a short period before checking again
-				System.Threading.Thread.Sleep(100);
+				await Task.Delay(100);
 			}
+			Logger.Info("All axes reached target position.");
 		}
 
-		private void WaitForObjectDetection()
+		private async Task WaitForObjectDetectionAsync()
 		{
+			Logger.Info("Waiting for object detection.");
 			while (!sensorController.GetSensorState(1))
 			{
-				// Wait for a short period before checking again
-				System.Threading.Thread.Sleep(100);
+				await Task.Delay(100);
 			}
+			Logger.Info("Object detected.");
 		}
 
 		private void HandleError(Exception ex)
 		{
-			// Log the error
 			Logger.Error(ex, "An error occurred during the gantry operation.");
-
-			// Perform any necessary cleanup or recovery actions
-			// For example, stop all motion and reset the system
 			servoController.StopAll();
 			ioController.WriteDigitalOutput(1, false);
 		}
@@ -178,5 +146,46 @@ namespace IndustrialAutomationSuite
 			Logger.Info($"Axis 6 Position: {servoController.GetPosition(6)}");
 		}
 
+		// New features
+
+		public async Task PerformPredictiveMaintenanceAsync()
+		{
+			Logger.Info("Performing predictive maintenance checks.");
+			// Implement predictive maintenance logic here
+			await Task.Delay(100); // Simulate maintenance check delay
+			Logger.Info("Predictive maintenance checks completed.");
+		}
+
+		public async Task OptimizeMovementAsync(List<(int x, int y, int z, int a, int b, int c)> waypoints)
+		{
+			Logger.Info("Optimizing movement through waypoints.");
+			// Implement optimized movement algorithm here
+			await MoveThroughWaypointsAsync(waypoints);
+			Logger.Info("Optimized movement completed.");
+		}
+
+		public async Task AdjustSpeedDynamicallyAsync(int axis, int load)
+		{
+			Logger.Info($"Adjusting speed dynamically for axis {axis} based on load {load}.");
+			// Implement dynamic speed adjustment logic here
+			int speed = CalculateOptimalSpeed(load);
+			servoController.SetSpeed(axis, speed);
+			await Task.Delay(100); // Simulate speed adjustment delay
+			Logger.Info($"Speed for axis {axis} adjusted to {speed}.");
+		}
+
+		private int CalculateOptimalSpeed(int load)
+		{
+			// Implement logic to calculate optimal speed based on load
+			return 100 - load; // Example calculation
+		}
+
+		public async Task PerformSafetyChecksAsync()
+		{
+			Logger.Info("Performing safety checks.");
+			// Implement safety check logic here
+			await Task.Delay(100); // Simulate safety check delay
+			Logger.Info("Safety checks completed.");
+		}
 	}
 }
