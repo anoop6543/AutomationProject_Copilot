@@ -17,21 +17,21 @@ namespace IndustrialAutomationSuite
 			_ethercatCommunication = ethercatCommunication;
 		}
 
-		public void ActivateEmergencyStop()
+		public virtual void ActivateEmergencyStop()
 		{
 			_isEmergencyStopActivated = true;
 			Logger.Warn("Emergency stop activated!");
 			StopAllOperations();
 		}
 
-		public void ResetEmergencyStop()
+		public virtual void ResetEmergencyStop()
 		{
 			_isEmergencyStopActivated = false;
 			Logger.Info("Emergency stop reset.");
 			ResumeOperations();
 		}
 
-		private void StopAllOperations()
+		public virtual void StopAllOperations()
 		{
 			// Stop all operations immediately
 			_ioController.WriteDigitalOutput(1, false); // Example: Stop a motor
@@ -39,7 +39,7 @@ namespace IndustrialAutomationSuite
 			Logger.Info("All operations stopped.");
 		}
 
-		private void ResumeOperations()
+		public virtual void ResumeOperations()
 		{
 			// Resume operations if safe
 			if (CheckSafetyConditions())
@@ -54,7 +54,7 @@ namespace IndustrialAutomationSuite
 			}
 		}
 
-		private bool CheckSafetyConditions()
+		public virtual bool CheckSafetyConditions()
 		{
 			// Check safety conditions before resuming operations
 			bool safetyCondition1 = _ioController.ReadDigitalInput(1); // Example: Check if a safety switch is on

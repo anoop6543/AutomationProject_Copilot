@@ -20,17 +20,17 @@ namespace IndustrialAutomationSuite
 			Logger.Info("Mock emergency stop reset.");
 		}
 
-		protected override void StopAllOperations()
+		public override void StopAllOperations()
 		{
 			Logger.Info("Mock all operations stopped.");
 		}
 
-		protected override void ResumeOperations()
+		public override void ResumeOperations()
 		{
 			Logger.Info("Mock all operations resumed.");
 		}
 
-		protected override bool CheckSafetyConditions()
+		public override bool CheckSafetyConditions()
 		{
 			Logger.Info("Mock safety conditions checked.");
 			return true; // Mock safety conditions
