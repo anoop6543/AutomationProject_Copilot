@@ -16,19 +16,19 @@ namespace IndustrialAutomationSuite
 			return true; // Mock interlock conditions
 		}
 
-		protected override bool CheckEmergencyStop()
+		public override bool CheckEmergencyStop()
 		{
 			Logger.Info("Mock emergency stop checked.");
 			return true; // Mock emergency stop condition
 		}
 
-		protected override bool CheckSafetySwitch()
+		public override bool CheckSafetySwitch()
 		{
 			Logger.Info("Mock safety switch checked.");
 			return true; // Mock safety switch condition
 		}
 
-		protected override bool CheckEthercatSafetyStatus()
+		public override bool CheckEthercatSafetyStatus()
 		{
 			Logger.Info("Mock EtherCAT safety status checked.");
 			return true; // Mock EtherCAT safety status

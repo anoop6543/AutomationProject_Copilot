@@ -23,7 +23,7 @@ namespace IndustrialAutomationSuite
 			_interlocks.Add(interlock);
 		}
 
-		public bool AreInterlocksSatisfied()
+		public virtual bool AreInterlocksSatisfied()
 		{
 			foreach (var interlock in _interlocks)
 			{
@@ -45,7 +45,7 @@ namespace IndustrialAutomationSuite
 			AddInterlock(() => CheckEthercatSafetyStatus());
 		}
 
-		private bool CheckEmergencyStop()
+		public virtual bool CheckEmergencyStop()
 		{
 			// Check if the emergency stop is activated
 			bool isEmergencyStopActivated = _ioController.ReadDigitalInput(1); // Example: Check emergency stop input
@@ -57,7 +57,7 @@ namespace IndustrialAutomationSuite
 			return true;
 		}
 
-		private bool CheckSafetySwitch()
+		public virtual bool CheckSafetySwitch()
 		{
 			// Check if a safety switch is on
 			bool isSafetySwitchOn = _ioController.ReadDigitalInput(2); // Example: Check safety switch input
@@ -69,7 +69,7 @@ namespace IndustrialAutomationSuite
 			return true;
 		}
 
-		private bool CheckEthercatSafetyStatus()
+		public virtual bool CheckEthercatSafetyStatus()
 		{
 			// Check EtherCAT safety status
 			string safetyStatus = _ethercatCommunication.ReadStatus("SAFETY_STATUS");

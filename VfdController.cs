@@ -25,7 +25,7 @@ namespace IndustrialAutomationSuite
 			}
 		}
 
-		public void SetSpeed(int speed)
+		public virtual void SetSpeed(int speed)
 		{
 			if (Configuration.SimulationMode)
 			{
@@ -37,7 +37,7 @@ namespace IndustrialAutomationSuite
 			}
 		}
 
-		public void Start()
+		public virtual void Start()
 		{
 			if (Configuration.SimulationMode)
 			{
@@ -49,7 +49,7 @@ namespace IndustrialAutomationSuite
 			}
 		}
 
-		public void Stop()
+		public virtual void Stop()
 		{
 			if (Configuration.SimulationMode)
 			{
@@ -61,7 +61,7 @@ namespace IndustrialAutomationSuite
 			}
 		}
 
-		public int GetSpeed()
+		public virtual int GetSpeed()
 		{
 			if (Configuration.SimulationMode)
 			{
@@ -75,7 +75,7 @@ namespace IndustrialAutomationSuite
 			}
 		}
 
-		public string GetFaultCode()
+		public virtual string GetFaultCode()
 		{
 			if (Configuration.SimulationMode)
 			{
@@ -89,7 +89,7 @@ namespace IndustrialAutomationSuite
 			}
 		}
 
-		public void ResetFault()
+		public virtual void ResetFault()
 		{
 			if (Configuration.SimulationMode)
 			{

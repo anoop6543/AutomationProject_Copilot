@@ -174,11 +174,11 @@ namespace IndustrialAutomationSuite
 			dataAcquisitionService.Stop();
 		}
 
-		private void StartOperationButton_Click(object sender, RoutedEventArgs e)
+		private async void StartOperationButton_Click(object sender, RoutedEventArgs e)
 		{
 			// Start operation logic
 			Logger.Info("Starting operation...");
-			gantrySystem.PickAndPlace();
+			await gantrySystem.PickAndPlaceAsync();
 			// Add your start operation logic here
 		}
 

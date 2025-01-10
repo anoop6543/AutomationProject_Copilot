@@ -149,14 +149,6 @@ namespace IndustrialAutomationSuite
 
 		// New features
 
-		public async Task PerformPredictiveMaintenanceAsync()
-		{
-			Logger.Info("Performing predictive maintenance checks.");
-			// Implement predictive maintenance logic here
-			await Task.Delay(100); // Simulate maintenance check delay
-			Logger.Info("Predictive maintenance checks completed.");
-		}
-
 		public async Task OptimizeMovementAsync(List<(int x, int y, int z, int a, int b, int c)> waypoints)
 		{
 			Logger.Info("Optimizing movement through waypoints.");
@@ -193,6 +185,8 @@ namespace IndustrialAutomationSuite
 			await CheckPressureAsync();
 			await CheckAcousticAsync();
 			await CheckInfraredAsync();
+			// Implement predictive maintenance logic here
+			await Task.Delay(100); // Simulate maintenance check delay
 			Logger.Info("Predictive maintenance checks completed.");
 		}
 

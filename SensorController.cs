@@ -6,7 +6,7 @@ namespace IndustrialAutomationSuite
 	{
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-		public bool GetSensorState(int sensorId)
+		public virtual bool GetSensorState(int sensorId)
 		{
 			if (Configuration.SimulationMode)
 			{
