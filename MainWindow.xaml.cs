@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace IndustrialAutomationSuite
 {
@@ -26,6 +27,7 @@ namespace IndustrialAutomationSuite
 		private EmergencyStopController emergencyStopController;
 		private SafetyInterlockController safetyInterlockController;
 		private GantrySystem gantrySystem;
+		private HubConnection hubConnection;
 
 		public MainWindow()
 		{
@@ -34,7 +36,7 @@ namespace IndustrialAutomationSuite
 			LoadMachineData();
 			StartDataAcquisition();
 			gantrySystem = new GantrySystem(servoController, sensorController, ioController);
-
+			InitializeSignalR();
 		}
 
 		private void InitializeComponents()
@@ -250,9 +252,46 @@ namespace IndustrialAutomationSuite
 			// Add your custom parameter change logic here
 		}
 
-		//private void StartOperationButton_Click(object sender, RoutedEventArgs e)
-		//{
-		//	gantrySystem.PickAndPlace();
-		//}
+		private async void InitializeSignalR()
+		{
+			hubConnection = new HubConnectionBuilder()
+				.WithUrl(Configuration.SignalRHubUrl)
+				.Build();
+
+			hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+			{
+				Dispatcher.Invoke(() =>
+				{
+					// Update UI with received message
+					MessagesList.Items.Add($"{user}: {message}");
+				});
+			});
+
+			try
+			{
+				await hubConnection.StartAsync();
+				Logger.Info("SignalR connection started.");
+			}
+			catch (Exception ex)
+			{
+				Logger.Error(ex, "Error starting SignalR connection.");
+			}
+		}
+
+		private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+			{
+				try
+				{
+					await hubConnection.InvokeAsync("SendMessage", "User", MessageTextBox.Text);
+					MessageTextBox.Clear();
+				}
+				catch (Exception ex)
+				{
+					Logger.Error(ex, "Error sending message via SignalR.");
+				}
+			}
+		}
 	}
 }

@@ -62,6 +62,23 @@ The `DataAcquisitionService` class provides SCADA (Supervisory Control and Data 
 - **Control**: Allows operators to control devices from the HMI.
 - **Alarming**: Generates alarms based on specific conditions.
 
+### 10. Additional Libraries and Dependencies
+
+The project integrates several additional libraries and dependencies to enhance its capabilities:
+
+- **AutoMapper**: For object-to-object mapping, simplifying the conversion between different data models.
+- **Polly**: For resilience and transient-fault handling, managing retries, circuit breakers, and fallback policies.
+- **Serilog**: For advanced logging capabilities, including structured logging and various sinks.
+- **FluentValidation**: For validating data models in a fluent and expressive way.
+- **Dapper**: For a lightweight ORM alternative to Entity Framework, simplifying database interactions.
+- **Quartz.NET**: For scheduling background tasks, useful for periodic maintenance or data acquisition tasks.
+- **Moq**: For creating mock objects in unit tests, aiding in effective application testing.
+- **Newtonsoft.Json**: For advanced JSON serialization and deserialization, useful for configuration and data exchange.
+- **Entity Framework Core**: For a robust ORM solution, simplifying database interactions and migrations.
+- **Hangfire**: For background job processing, managing long-running tasks and retries.
+- **RabbitMQ**: For message queuing, decoupling components and improving scalability.
+- **SignalR**: For real-time web functionality, enhancing the HMI with real-time updates and notifications.
+
 ## Why This Project?
 
 This project showcases my capabilities in developing complex machine automation systems. It demonstrates proficiency in:
@@ -72,6 +89,7 @@ This project showcases my capabilities in developing complex machine automation 
 - **Logging and Diagnostics**: Using NLog for comprehensive logging and diagnostics to track machine performance and troubleshoot issues.
 - **Simulation Mode**: Enabling a simulation mode to test and debug the application without requiring actual hardware, ensuring flexibility and efficiency in the development process.
 - **SCADA Capabilities**: Implementing real-time data acquisition, monitoring, and control to provide a comprehensive view of the machine's operation.
+- **Additional Libraries**: Integrating libraries like AutoMapper, Polly, Serilog, FluentValidation, Dapper, Quartz.NET, Moq, Newtonsoft.Json, Entity Framework Core, Hangfire, RabbitMQ, and SignalR to enhance the project's capabilities.
 
 ## Getting Started
 
