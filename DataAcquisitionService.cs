@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
 
 namespace IndustrialAutomationSuite
 {
@@ -15,6 +18,9 @@ namespace IndustrialAutomationSuite
 		private readonly BeckhoffServoController _servoController;
 		private readonly DatabaseHelper _dbHelper;
 		private readonly CancellationTokenSource _cancellationTokenSource;
+		private readonly IConnection _rabbitMqConnection;
+		private readonly IModel _rabbitMqChannel;
+		private readonly string _queueName;
 
 		public DataAcquisitionService(SensorController sensorController, TurckIOController ioController, VfdController vfdController, BeckhoffServoController servoController, DatabaseHelper dbHelper)
 		{
@@ -24,6 +30,12 @@ namespace IndustrialAutomationSuite
 			_servoController = servoController;
 			_dbHelper = dbHelper;
 			_cancellationTokenSource = new CancellationTokenSource();
+
+			var factory = new ConnectionFactory() { HostName = "localhost" };
+			_rabbitMqConnection = factory.CreateConnection();
+			_rabbitMqChannel = _rabbitMqConnection.CreateModel();
+			_queueName = "dataQueue";
+			_rabbitMqChannel.QueueDeclare(queue: _queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
 		}
 
 		public void Start()
@@ -34,6 +46,8 @@ namespace IndustrialAutomationSuite
 		public void Stop()
 		{
 			_cancellationTokenSource.Cancel();
+			_rabbitMqChannel.Close();
+			_rabbitMqConnection.Close();
 		}
 
 		private async Task AcquireData(CancellationToken cancellationToken)
@@ -61,6 +75,11 @@ namespace IndustrialAutomationSuite
 
 					// Log data for debugging
 					Logger.Info($"Acquired data: {data}");
+
+					// Publish data to RabbitMQ
+					var message = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+					var body = Encoding.UTF8.GetBytes(message);
+					_rabbitMqChannel.BasicPublish(exchange: "", routingKey: _queueName, basicProperties: null, body: body);
 
 					// Wait for a specified interval before acquiring data again
 					await Task.Delay(1000, cancellationToken); // 1 second interval

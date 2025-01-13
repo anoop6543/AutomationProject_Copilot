@@ -1,7 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using NLog;
 using System.Collections.Generic;
-
 
 namespace IndustrialAutomationSuite
 {
@@ -28,23 +28,9 @@ namespace IndustrialAutomationSuite
 			}
 			else
 			{
-				var recipes = new List<ParameterRecipe>();
 				using var connection = new SqlConnection(_connectionString);
 				connection.Open();
-				using var command = new SqlCommand("SELECT * FROM ParameterRecipe", connection);
-				using var reader = command.ExecuteReader();
-				while (reader.Read())
-				{
-					var recipe = new ParameterRecipe
-					{
-						RecipeId = reader.GetInt32(0),
-						RecipeName = reader.GetString(1),
-						ServoPosition = reader.GetDouble(2),
-						VfdSpeed = reader.GetInt32(3),
-						MarkingParameters = reader.GetString(4)
-					};
-					recipes.Add(recipe);
-				}
+				var recipes = connection.Query<ParameterRecipe>("SELECT * FROM ParameterRecipe").AsList();
 				return recipes;
 			}
 		}
@@ -59,12 +45,8 @@ namespace IndustrialAutomationSuite
 			{
 				using var connection = new SqlConnection(_connectionString);
 				connection.Open();
-				using var command = new SqlCommand("INSERT INTO Results (RecipeId, Timestamp, Success, Details) VALUES (@RecipeId, @Timestamp, @Success, @Details)", connection);
-				command.Parameters.AddWithValue("@RecipeId", result.RecipeId);
-				command.Parameters.AddWithValue("@Timestamp", result.Timestamp);
-				command.Parameters.AddWithValue("@Success", result.Success);
-				command.Parameters.AddWithValue("@Details", result.Details);
-				command.ExecuteNonQuery();
+				var query = "INSERT INTO Results (RecipeId, Timestamp, Success, Details) VALUES (@RecipeId, @Timestamp, @Success, @Details)";
+				connection.Execute(query, result);
 			}
 		}
 
@@ -78,11 +60,8 @@ namespace IndustrialAutomationSuite
 			{
 				using var connection = new SqlConnection(_connectionString);
 				connection.Open();
-				using var command = new SqlCommand("INSERT INTO AlarmLog (Timestamp, AlarmMessage, Severity) VALUES (@Timestamp, @AlarmMessage, @Severity)", connection);
-				command.Parameters.AddWithValue("@Timestamp", alarm.Timestamp);
-				command.Parameters.AddWithValue("@AlarmMessage", alarm.AlarmMessage);
-				command.Parameters.AddWithValue("@Severity", alarm.Severity);
-				command.ExecuteNonQuery();
+				var query = "INSERT INTO AlarmLog (Timestamp, AlarmMessage, Severity) VALUES (@Timestamp, @AlarmMessage, @Severity)";
+				connection.Execute(query, alarm);
 			}
 		}
 
@@ -96,11 +75,8 @@ namespace IndustrialAutomationSuite
 			{
 				using var connection = new SqlConnection(_connectionString);
 				connection.Open();
-				using var command = new SqlCommand("INSERT INTO ErrorLog (Timestamp, ErrorMessage, StackTrace) VALUES (@Timestamp, @ErrorMessage, @StackTrace)", connection);
-				command.Parameters.AddWithValue("@Timestamp", error.Timestamp);
-				command.Parameters.AddWithValue("@ErrorMessage", error.ErrorMessage);
-				command.Parameters.AddWithValue("@StackTrace", error.StackTrace);
-				command.ExecuteNonQuery();
+				var query = "INSERT INTO ErrorLog (Timestamp, ErrorMessage, StackTrace) VALUES (@Timestamp, @ErrorMessage, @StackTrace)";
+				connection.Execute(query, error);
 			}
 		}
 
@@ -114,13 +90,8 @@ namespace IndustrialAutomationSuite
 			{
 				using var connection = new SqlConnection(_connectionString);
 				connection.Open();
-				using var command = new SqlCommand("INSERT INTO ScadaData (Timestamp, SensorState, AnalogInputValue, VfdSpeed, ServoPosition) VALUES (@Timestamp, @SensorState, @AnalogInputValue, @VfdSpeed, @ServoPosition)", connection);
-				command.Parameters.AddWithValue("@Timestamp", data.Timestamp);
-				command.Parameters.AddWithValue("@SensorState", data.SensorState);
-				command.Parameters.AddWithValue("@AnalogInputValue", data.AnalogInputValue);
-				command.Parameters.AddWithValue("@VfdSpeed", data.VfdSpeed);
-				command.Parameters.AddWithValue("@ServoPosition", data.ServoPosition);
-				command.ExecuteNonQuery();
+				var query = "INSERT INTO ScadaData (Timestamp, SensorState, AnalogInputValue, VfdSpeed, ServoPosition) VALUES (@Timestamp, @SensorState, @AnalogInputValue, @VfdSpeed, @ServoPosition)";
+				connection.Execute(query, data);
 			}
 		}
 	}
